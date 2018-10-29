@@ -1,0 +1,40 @@
+<?php
+
+/**
+ * @file
+ * Contains install and update functions for Commerce Buy Click module.
+ */
+
+use Drupal\commerce_order\Entity\OrderType;
+use Drupal\commerce_order\Entity\OrderItemType;
+use Drupal\commerce_buy_click\CommerceBuyClickInterface;
+
+/**
+ * Implements hook_install().
+ */
+function commerce_buy_click_install() {
+  if (OrderType::load(CommerceBuyClickInterface::CBC_ORDER_TYPE) == NULL) {
+    $order_type = OrderType::create([
+      'status' => TRUE,
+      'id' => CommerceBuyClickInterface::CBC_ORDER_TYPE,
+      'label' => 'Commerce buy click order type',
+      'workflow' => 'order_default',
+      'refresh_mode' => 'always',
+      'refresh_frequency' => 30,
+    ]);
+    $order_type->save();
+
+    commerce_order_add_order_items_field($order_type);
+  }
+
+  if (OrderItemType::load(CommerceBuyClickInterface::CBC_ORDER_ITEM_TYPE) == NULL) {
+    $order_item_type = OrderItemType::create([
+      'id' => CommerceBuyClickInterface::CBC_ORDER_ITEM_TYPE,
+      'label' => 'Commerce buy click order item type',
+      'status' => TRUE,
+      'purchasableEntityType' => 'commerce_product_variation',
+      'orderType' => CommerceBuyClickInterface::CBC_ORDER_TYPE,
+    ]);
+    $order_item_type->save();
+  }
+}

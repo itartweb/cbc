@@ -1,0 +1,21 @@
+{#
+/**
+ * @file
+ * Default theme implementation for displaying a price.
+ *
+ * Available variables:
+ *   - number: The number.
+ *   - currency: The currency code.
+ *   - label: The label of field.
+ *
+ * @ingroup themeable
+ */
+#}
+{%
+  set classes = [
+    'commerce-modal-prices',
+  ]
+%}
+<div {{ attributes.addClass(classes) }}>
+  {{ label }} {{ number }} {{ currency }}
+</div>

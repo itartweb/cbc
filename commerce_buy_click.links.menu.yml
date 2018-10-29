@@ -1,0 +1,12 @@
+commerce_buy_click.configuration:
+  title: 'Commerce Buy Click'
+  route_name: 'commerce_buy_click.configuration'
+  parent: 'commerce.configuration'
+  weight: -5
+
+commerce_buy_click.configuration.settings:
+  title: 'Commerce Buy Click'
+  route_name: 'commerce_buy_click.configuration.settings'
+  parent: 'commerce_buy_click.configuration'
+  description: ''
+  weight: -10

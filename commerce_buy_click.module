@@ -1,0 +1,158 @@
+<?php
+
+/**
+ * @file
+ * Defines common functionality for all Commerce Buy Click module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\commerce_buy_click\CommerceBuyClickInterface;
+
+/**
+ * {@inheritdoc}
+ */
+function commerce_buy_click_get_arg($index = NULL) {
+  $path = \Drupal::request()->getRequestUri();
+
+  $arguments[$path] = explode('/', $path);
+
+  if (!isset($index)) {
+    return $arguments[$path];
+  }
+  if (isset($arguments[$path][$index])) {
+    return $arguments[$path][$index];
+  }
+
+  return NULL;
+}
+
+/**
+ * Implements hook_help().
+ */
+function commerce_buy_click_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the commerce_buy_click module.
+    case 'help.page.commerce_buy_click':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Commerce buy click module help.') . '</p>';
+      return $output;
+
+    default:
+  }
+  return NULL;
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function commerce_buy_click_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  if (strpos($form_id, 'commerce_order_item_add_to_cart_form_commerce_product') !== FALSE) {
+
+    $cbc_helper = \Drupal::service('commerce_buy_click_product.service');
+    $cbc_helper->setProduct($form_state->getStorage()['product']);
+
+    if ($cbc_helper->hasProduct() && $cbc_helper->hasProductInStore()) {
+      $config = \Drupal::config('commerce_buy_click.settings');
+      $default_product_types = !empty($config->get('default.product_types')) ? $config->get('default.product_types') : [];
+      if (in_array($cbc_helper->getProductBundle(), $default_product_types) && $default_product_types[$cbc_helper->getProductBundle()]) {
+        $cbc_form_model = \Drupal::service('commerce_buy_click_form.service');
+        $cbc_form_model->getAdditionalFormButton($form, $form_state);
+      }
+    }
+  }
+
+  if ($form_id == CommerceBuyClickInterface::PROFILE_CUSTOMER_FORM_ID) {
+    $cbc_form_model = \Drupal::service('commerce_buy_click_form.service');
+    $cbc_form_model->getAdditionalFormElements($form, $form_state);
+  }
+}
+
+/**
+ * Implements hook_entity_type_alter().
+ */
+function commerce_buy_click_entity_type_alter(array &$entity_types) {
+  $entity_type = CommerceBuyClickInterface::ENTITY_TYPE_PROFILE;
+  $entity = $entity_types[$entity_type];
+  $form_modes = \Drupal::service('entity_display.repository')->getFormModes($entity_type);
+  foreach ($form_modes as $machine_name => $form_display) {
+    // Get the correct canonical path to add operation.
+    $path = $entity->getLinkTemplate('canonical') . "/$machine_name";
+    $default_handler_class = $entity->getHandlerClasses()['form']['default'];
+    $entity->setFormClass($machine_name, $default_handler_class)->setLinkTemplate($machine_name, $path);
+  }
+}
+
+/**
+ * Implements hook_entity_bundle_create().
+ */
+function commerce_buy_click_entity_bundle_create($entity_type_id, $bundle) {
+  if ($entity_type_id == CommerceBuyClickInterface::ENTITY_TYPE_PROFILE) {
+    try {
+      $storage = \Drupal::entityTypeManager()->getStorage('entity_form_display');
+      $form_display = $storage->load('profile.' . $bundle . '.' . CommerceBuyClickInterface::FORM_DISPLAY_MODE);
+      if (!$form_display) {
+        /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface $form_display */
+        $form_display = $storage->create([
+          'targetEntityType' => CommerceBuyClickInterface::ENTITY_TYPE_PROFILE,
+          'bundle' => $bundle,
+          'mode' => CommerceBuyClickInterface::FORM_DISPLAY_MODE,
+          'status' => TRUE,
+        ]);
+        $form_display->save();
+      }
+    }
+    catch (\Exception $e) {
+      \Drupal::messenger()->addMessage($e->getMessage(), 'error');
+      return NULL;
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_type_build().
+ */
+function commerce_buy_click_entity_type_build(array &$entity_types) {
+  $entity_types['profile']->setFormClass(CommerceBuyClickInterface::FORM_DISPLAY_MODE, '\Drupal\profile\ProfileForm');
+}
+
+/**
+ * Implements hook_views_data_alter().
+ */
+function commerce_buy_click_views_data_alter(array &$data) {
+  $data['commerce_product']['commerce_buy_click']['field'] = [
+    'title' => t('Commerce buy click'),
+    'help' => t('Adds a commerce buy click.'),
+    'id' => 'commerce_buy_click_button',
+  ];
+}
+
+/**
+ * Implements hook_theme().
+ */
+function commerce_buy_click_theme() {
+  return [
+    'commerce_buy_click_price' => [
+      'variables' => [
+        'number' => 0,
+        'currency' => NULL,
+        'label' => NULL,
+      ],
+      'template' => 'commerce-buy-click-price',
+    ],
+    'commerce_buy_click_prices' => [
+      'variables' => [
+        'min_number' => 0,
+        'max_number' => 0,
+        'currency' => NULL,
+        'label' => NULL,
+      ],
+      'template' => 'commerce-buy-click-prices',
+    ],
+    CommerceBuyClickInterface::PROFILE_CUSTOMER_FORM_ID => [
+      'render element' => 'form',
+      'template' => 'profile-customer-commerce-buy-click-form',
+    ],
+  ];
+}

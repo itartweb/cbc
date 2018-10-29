@@ -1,0 +1,22 @@
+{#
+/**
+ * @file
+ * Default theme implementation for displaying the prices.
+ *
+ * Available variables:
+ *   - min_number: The min number.
+ *   - max_number: The max number.
+ *   - currency: The currency code.
+ *   - label: The label of field.
+ *
+ * @ingroup themeable
+ */
+#}
+{%
+  set classes = [
+    'commerce-modal-prices',
+  ]
+%}
+<div {{ attributes.addClass(classes) }}>
+  {{ label }} {{ min_number }} {{ currency }} - {{ max_number }} {{ currency }}
+</div>

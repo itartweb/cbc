@@ -1,0 +1,10 @@
+services:
+  commerce_buy_click_product.service:
+    class: Drupal\commerce_buy_click\CommerceBuyClickProductService
+    arguments: ['@config.factory']
+  commerce_buy_click.service:
+    class: Drupal\commerce_buy_click\CommerceBuyClickService
+    arguments: ['@config.factory', '@entity.manager', '@request_stack', '@commerce_store.current_store', '@messenger']
+  commerce_buy_click_form.service:
+    class: Drupal\commerce_buy_click\CommerceBuyClickFormService
+    arguments: ['@config.factory', '@entity.manager', '@commerce_product.attribute_field_manager', '@entity.form_builder', '@current_user']

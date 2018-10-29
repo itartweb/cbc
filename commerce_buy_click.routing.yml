@@ -1,0 +1,27 @@
+commerce_buy_click.configuration:
+  path: '/admin/commerce/config/commerce-buy-click'
+  defaults:
+    _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
+    _title: 'Commerce Buy Click'
+  requirements:
+    _permission: 'access commerce administration pages'
+
+commerce_buy_click.configuration.settings:
+  path: '/admin/commerce/config/commerce-buy-click/settings'
+  defaults:
+    _form: '\Drupal\commerce_buy_click\Form\CommerceBuyClickSettingsForm'
+    _title: 'Commerce Buy Click settings'
+  requirements:
+    _permission: 'access commerce administration pages'
+
+commerce_buy_click.create_order:
+  path: '/commerce_buy_click/{commerce_product}'
+  defaults:
+    _title_callback: '\Drupal\commerce_buy_click\Controller\CommerceBuyClickController::getTitle'
+    _controller: '\Drupal\commerce_buy_click\Controller\CommerceBuyClickController::buildProfileForm'
+  requirements:
+    _permission: 'access checkout'
+  options:
+    parameters:
+      commerce_product:
+        type: entity:commerce_product

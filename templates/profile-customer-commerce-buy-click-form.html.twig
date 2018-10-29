@@ -1,0 +1,60 @@
+{#
+/**
+ * @file
+ * Default theme implementation for displaying the form in modal.
+ *
+ * @ingroup themeable
+ */
+#}
+{%
+  set classes = [
+    'commerce-modal',
+  ]
+%}
+<div {{ attributes.addClass(classes) }}>
+    {{ form.form_build_id }}
+    {{ form.form_token }}
+    {{ form.uid }}
+    {{ form.type }}
+    {{ form.redirect }}
+    {{ form.product_id }}
+
+    <div class="validation-message"></div>
+
+    {% if form.commerce_buy_click.description %}
+    <div class="form-row description">
+        {{ form.commerce_buy_click.description }}
+    </div>
+    {% endif %}
+
+    <div class="form-row modal-form-elements">
+        {% if form.commerce_buy_click.image %}
+        <div class="left">
+            <div class="elements">
+                {{ form.commerce_buy_click.image }}
+            </div>
+        </div>
+        {% endif %}
+        <div class="right">
+            <div class="elements prices">
+                {{ form.commerce_buy_click.prices }}
+                {{ form.commerce_buy_click.quantity }}
+                {{ form.commerce_buy_click.variation }}
+                {{ form.commerce_buy_click.attributes }}
+            </div>
+        </div>
+    </div>
+
+    {% if form.commerce_buy_click.display_product %}
+        <div class="form-row product">
+            {{ form.commerce_buy_click.display_product }}
+        </div>
+    {% endif %}
+
+    <div class="form-row profile">
+        {{ form|without('commerce_buy_click', 'actions') }}
+    </div>
+    <div class="form-row buttons">
+        {{ form.actions.submit }}
+    </div>
+</div>

@@ -1,0 +1,5 @@
+commerce_buy_click.css:
+  version: VERSION
+  css:
+    theme:
+      css/styles.css: { }

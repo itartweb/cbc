@@ -1,0 +1,12 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - profile
+  enforced:
+    module:
+      - commerce_buy_click
+id: profile.commerce_buy_click
+label: "Commerce Buy Click"
+targetEntityType: profile
+cache: true
